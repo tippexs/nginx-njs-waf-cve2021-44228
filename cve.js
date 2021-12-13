@@ -4,16 +4,42 @@
  */
 
 /**
- * Validates an incomming request and checks all Headers as well as the URI for IOCs of CVE2021-44228
+ * Validates an incoming request and checks all Headers as well as the URI for IOCs of CVE2021-44228
  *
- * @param {r} r NGINX njs Request Object.
+ * @param {Object} r NGINX njs Request Object.
  * @return {string} `1` if IOC was found `` if nothing was found.
  */
 function inspect(r) {
-	let string = undefined;
 	let allHeaders = "";
-	let found = "";
 	r.rawHeadersIn.forEach(header => allHeaders += `${(header.join('--'))}`);
+	return checkIOCStrings(r, `${r.uri}${allHeaders}`);
+}
+
+/**
+ * Validates an incoming request body and checks it for IOCs of CVE2021-44228
+ *
+ * @param {Object} r NGINX njs Request Object.
+ * @return {string} `1` if IOC was found `` if nothing was found.
+ */
+function postBodyInspect(r) {;
+	if (r.method === "POST") {
+		try {
+			if (checkIOCStrings(r, r.variables.request_body)) {return "http://127.0.0.1:8999/"} else {return r.variables.upstream};
+		} catch(e) {
+			r.error(`POST Body inspection failed!`);
+		}
+	}
+}
+
+/**
+ * Internal function to handle the check of strings against the List of IOC Strings
+ *
+ * @param {Object} r  NGINX njs Request Object.
+ * @param {string} input String that could contain IOC Strings.
+ * @return {string} `1` if IOC was found `` if nothing was found.
+ */
+function checkIOCStrings(r, input) {
+	let found = "";
 	const iocList = [
 		'${jndi:ldap:/',
 		'${jndi:rmi:/',
@@ -30,21 +56,21 @@ function inspect(r) {
 		'${jndi:nds',
 		'${jndi:corba',
 		'${jndi:iiop',
+		'${${env:BARFOO:-j}',
 		'${::-l}${::-d}${::-a}${::-p}',
 		'${base64:JHtqbmRp',
 		'/Basic/Command/Base64/',
 		new RegExp(/\$\{\s*(j|\$?\{.+?\})/)
 	]
-	string = `${r.uri}${allHeaders}`;
+
 	iocList.forEach(element => {
 		if (typeof element === 'object' && found !== "1") {
-			r.error(`in Regex Matching`);
-			if (string.match(element)) {
+			if (input.match(element)) {
 				r.error(`Found CVE2021-44228 IOC: ${element}. Request was blocked! From ${r.remoteAddress}`)
 				found = "1";
 			}
 		} else {
-			if (string.includes(element)) {
+			if (input.includes(element)) {
 				r.error(`Found CVE2021-44228 IOC: ${element}. Request was blocked! From ${r.remoteAddress}`)
 				found = "1";
 			}
@@ -52,4 +78,5 @@ function inspect(r) {
 	});
 	return found;
 }
-export default {inspect}
+
+export default {inspect, postBodyInspect};
