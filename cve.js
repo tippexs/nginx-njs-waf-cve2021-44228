@@ -1,6 +1,7 @@
-export default {inspect};
-
-
+/**
+ * (c) Timo Stark F5 Inc. Dec. 2021
+ *
+ */
 
 /**
  * Validates an incomming request and checks all Headers as well as the URI for IOCs of CVE2021-44228
@@ -29,18 +30,26 @@ function inspect(r) {
 		'${jndi:nds',
 		'${jndi:corba',
 		'${jndi:iiop',
-		'${${env:BARFOO:-j}',
 		'${::-l}${::-d}${::-a}${::-p}',
 		'${base64:JHtqbmRp',
 		'/Basic/Command/Base64/',
+		new RegExp(/\$\{\s*(j|\$?\{.+?\})/)
 	]
 	string = `${r.uri}${allHeaders}`;
 	iocList.forEach(element => {
-		if (string.includes(element)) {
-			r.error(`Found CVE2021-44228 IOC: ${element}. Request was blocked! From ${r.remoteAddress}`)
-			found = "1";
+		if (typeof element === 'object' && found !== "1") {
+			r.error(`in Regex Matching`);
+			if (string.match(element)) {
+				r.error(`Found CVE2021-44228 IOC: ${element}. Request was blocked! From ${r.remoteAddress}`)
+				found = "1";
+			}
+		} else {
+			if (string.includes(element)) {
+				r.error(`Found CVE2021-44228 IOC: ${element}. Request was blocked! From ${r.remoteAddress}`)
+				found = "1";
+			}
 		}
 	});
-	
 	return found;
 }
+export default {inspect}
