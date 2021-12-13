@@ -4,7 +4,7 @@ As the <b>Log4Shell</b> Vulnerability is still hard to mitigate and a couple of 
 something that will prevent requests from coming through the proxy layer we have just created a small njs script / configuration that will scan the `URI`, all incoming `headers` as well as the POST body for know strings.
 
 ## Disclaimer
-This configuration is not an official support tool our NGINX and F5 support are aware of at this point. Please track issues in this repository.
+This configuration is not officially supported by NGINX and F5. Please track issues in this repository.
 
 ## Prerequisite
 NGINX njs module (> 0.4.0)
