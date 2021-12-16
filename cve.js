@@ -12,7 +12,7 @@
 function inspect(r) {
 	let allHeaders = "";
 	r.rawHeadersIn.forEach(header => allHeaders += `${(header.join('--'))}`);
-	return checkIOCStrings(r, `${r.uri}${allHeaders}`);
+	return checkIOCStrings(r, `${r.rawVariables.request_uri}${allHeaders}`);
 }
 
 /**
