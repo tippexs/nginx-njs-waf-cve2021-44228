@@ -12,7 +12,7 @@
 function inspect(r) {
 	let allHeaders = "";
 	r.rawHeadersIn.forEach(header => allHeaders += `${(header.join('--'))}`);
-	return checkIOCStrings(r, `${r.rawVariables.request_uri}${allHeaders}`);
+	return checkIOCStrings(r, `${r.variables.request_uri}${allHeaders}`);
 }
 
 /**
@@ -21,7 +21,7 @@ function inspect(r) {
  * @param {Object} r NGINX njs Request Object.
  * @return {string} `1` if IOC was found `` if nothing was found.
  */
-function postBodyInspect(r) {;
+function postBodyInspect(r) {
 	if (r.method === "POST") {
 		try {
 			if (checkIOCStrings(r, r.variables.request_body)) {return "http://127.0.0.1:8999/"} else {return r.variables.upstream};
@@ -56,7 +56,6 @@ function checkIOCStrings(r, input) {
 		'${jndi:nds',
 		'${jndi:corba',
 		'${jndi:iiop',
-		'${${env:BARFOO:-j}',
 		'${::-l}${::-d}${::-a}${::-p}',
 		'${base64:JHtqbmRp',
 		'/Basic/Command/Base64/',
