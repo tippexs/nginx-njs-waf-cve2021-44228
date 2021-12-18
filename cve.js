@@ -22,12 +22,14 @@ function inspect(r) {
  * @return {string} `1` if IOC was found `` if nothing was found.
  */
 function postBodyInspect(r) {
-	if (r.method === "POST") {
+	if (r.method === "POST" || r.method === "PUT") {
 		try {
 			if (checkIOCStrings(r, r.variables.request_body)) {return "http://127.0.0.1:8999/"} else {return r.variables.upstream};
 		} catch(e) {
 			r.error(`POST Body inspection failed!`);
 		}
+	} else {
+		return r.variables.upstream;
 	}
 }
 
