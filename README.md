@@ -26,7 +26,6 @@ Enabling the Header / URI request scanning in for all locations in your server b
 ## Example Configuration
 ### Header and URI Variables
 ```shell
-
 js_import cve from conf.d/cve.js;
 js_set $isJNDI cve.inspect;
 
@@ -40,7 +39,6 @@ server {
 	...
     }
 }
-
 ```
 
 ### Post-Body Scanning
@@ -98,9 +96,10 @@ function postBodyInspect(r) {;
     if (r.method === "POST") {
         try {
             if (checkIOCStrings(r, r.variables.request_body)) {
-	        return "http://127.0.0.1:CHANGEME/"
+	        return "http://127.0.0.1:CHANGEME/";
 	    } else {
-	        return r.variables.upstream};
+	        return r.variables.upstream;
+	    }
         } catch(e) {
             r.error(`POST Body inspection failed!`);
         }
